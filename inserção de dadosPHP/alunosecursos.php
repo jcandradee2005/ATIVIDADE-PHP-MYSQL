@@ -9,27 +9,27 @@ if (mysqli_connect_errno()) {
 // verificar se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
- // inserir novo usuário na tabela 'usuarios'
+ // inserir novo aluno na tabela 'alunos'
  $nome = $_POST["nome"];
- $email = $_POST["email"];
+ $turma = $_POST["turma"];
 
- $sql = "INSERT INTO usuarios (nome, email) VALUES ('$nome', '$email')";
+ $sql = "INSERT INTO alunos (nome, turma) VALUES ('$nome', '$turma')";
 
  if (mysqli_query($con, $sql)) {
-    $id_usuario = mysqli_insert_id($con);
-    echo "New user registered successfully. Last inserted ID: " . $id_usuario;
+    $id_aluno = mysqli_insert_id($con);
+    echo "New student registered successfully. Last inserted ID: " . $id_aluno;
  } else {
     echo "Error: " . $sql . "<br>" . mysqli_error($con);
  }
 
- // inserir novo pedido na tabela 'pedidos'
- $produto = $_POST["produto"];
- $quantidade = $_POST["quantidade"];
+ // inserir novo curso na tabela 'cursos'
+ $nome_curso = $_POST["nome_curso"];
+ $instrutor = $_POST["instrutor"];
 
- $sql = "INSERT INTO pedidos (id_usuario, produto, quantidade) VALUES ('$id_usuario', '$produto', '$quantidade')";
+ $sql = "INSERT INTO cursos (id_aluno, nome_curso, instrutor) VALUES ('$id_aluno', '$nome_curso', '$instrutor')";
 
  if (mysqli_query($con, $sql)) {
-    echo "New order registered successfully.";
+    echo "New course registered successfully.";
  } else {
     echo "Error: " . $sql . "<br>" . mysqli_error($con);
  }
@@ -43,16 +43,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <body>
 
-<h2>Registre um novo usuário e seu pedido</h2>
+<h2>Registre um novo aluno e seu curso</h2>
 
 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
  Nome: <input type="text" name="nome">
  <br>
- E-mail: <input type="text" name="email">
+ Turma: <input type="text" name="turma">
  <br>
- Produto: <input type="text" name="produto">
+ Nome do Curso: <input type="text" name="nome_curso">
  <br>
- Quantidade: <input type="text" name="quantidade">
+ Instrutor: <input type="text" name="instrutor">
  <br><br>
  <input type="submit" value="Registrar">
 </form>
