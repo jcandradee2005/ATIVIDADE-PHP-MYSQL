@@ -1,4 +1,5 @@
 <?php
+//nome: maxwell
 // conexão com o banco de dados
 $con = mysqli_connect("localhost", "root", "", "cadastro");
 
