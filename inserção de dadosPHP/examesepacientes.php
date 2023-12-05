@@ -1,46 +1,46 @@
 <?php
-//nome: Maxwell
-$servername = "seu_servidor_mysql";
-$username = "seu_usuario_mysql";
-$password = "sua_senha_mysql";
-$dbname = "seu_banco_de_dados";
+// nome: maxwell
+$host = 'localhost';
+$dbname = 'meu_banco_de_dados';
+$user = 'meu_usuario';
+$password = 'minha_senha';
 
-// Criar conexão
-$conn = new mysqli($servername, $username, $password, $dbname);
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $user, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Verificar a conexão
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
+    // Insere o paciente
+    $sql = "INSERT INTO pacientes (nome_paciente, data_nascimento) VALUES (:nome_paciente, :data_nascimento)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':nome_paciente', $nome_paciente);
+    $stmt->bindParam(':data_nascimento', $data_nascimento);
+
+    $nome_paciente = 'João Silva';
+    $data_nascimento = '1985-07-23';
+
+    $stmt->execute();
+
+    // Obtem o id_paciente inserido
+    $id_paciente = $conn->lastInsertId();
+
+    // Insere o resultado do exame do paciente
+    $sql = "INSERT INTO resultados_exames (id_paciente, tipo_exame, resultado) VALUES (:id_paciente, :tipo_exame, :resultado)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':id_paciente', $id_paciente);
+    $stmt->bindParam(':tipo_exame', $tipo_exame);
+    $stmt->bindParam(':resultado', $resultado);
+
+    $tipo_exame = 'Análise de Sangue';
+    $resultado = 'Negativo para COVID-19';
+
+    $stmt->execute();
+
+    echo "Resultado do exame e paciente inseridos com sucesso!";
+
+} catch(PDOException $e) {
+    echo "Erro: " . $e->getMessage();
 }
 
-// Dados do paciente
-$id_paciente = 1;
-$nome_paciente = "Paciente PHP";
-$data_nascimento = "1990-01-01";
+$conn = null;
 
-// Inserir dados do paciente na tabela pacientes
-$sql_paciente = "INSERT INTO pacientes (id_paciente, nome_paciente, data_nascimento) VALUES ($id_paciente, '$nome_paciente', '$data_nascimento')";
-
-if ($conn->query($sql_paciente) === TRUE) {
-    echo "Dados do paciente inseridos com sucesso.<br>";
-} else {
-    echo "Erro ao inserir dados do paciente: " . $conn->error;
-}
-
-// Dados do resultado do exame
-$id_resultado = 1;
-$tipo_exame = "Hematologia";
-$resultado = "Dentro da faixa normal";
-
-// Inserir dados do resultado do exame na tabela resultados_exames
-$sql_resultado = "INSERT INTO resultados_exames (id_resultado, tipo_exame, resultado) VALUES ($id_resultado, '$tipo_exame', '$resultado')";
-
-if ($conn->query($sql_resultado) === TRUE) {
-    echo "Dados do resultado do exame inseridos com sucesso.<br>";
-} else {
-    echo "Erro ao inserir dados do resultado do exame: " . $conn->error;
-}
-
-// Fechar conexão
-$conn->close();
 ?>
