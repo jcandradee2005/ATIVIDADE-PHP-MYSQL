@@ -1,45 +1,46 @@
 <?php
-//nome: Maxwell
-$servername = "seu_servidor_mysql";
-$username = "seu_usuario_mysql";
-$password = "sua_senha_mysql";
-$dbname = "seu_banco_de_dados";
 
-// Criar conexão
-$conn = new mysqli($servername, $username, $password, $dbname);
+$host = 'localhost';
+$dbname = 'meu_banco_de_dados';
+$user = 'meu_usuario';
+$password = 'minha_senha';
 
-// Verificar a conexão
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $user, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Insere o evento
+    $sql = "INSERT INTO eventos (nome_evento, data) VALUES (:nome_evento, :data)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':nome_evento', $nome_evento);
+    $stmt->bindParam(':data', $data);
+
+    $nome_evento = 'Meu Evento';
+    $data = '2022-05-01';
+
+    $stmt->execute();
+
+    // Obtem o id_evento inserido
+    $id_evento = $conn->lastInsertId();
+
+    // Insere os participantes do evento
+    $sql = "INSERT INTO participantes (id_evento, nome_participante) VALUES (:id_evento, :nome_participante)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':id_evento', $id_evento);
+    $stmt->bindParam(':nome_participante', $nome_participante);
+
+    $participantes = ['João', 'Maria', 'Ana'];
+
+    foreach ($participantes as $nome_participante) {
+        $stmt->execute();
+    }
+
+    echo "Evento e participantes inseridos com sucesso!";
+
+} catch(PDOException $e) {
+    echo "Erro: " . $e->getMessage();
 }
 
-// Dados do evento
-$id_evento = 1;
-$nome_evento = "Evento PHP";
-$data_evento = "2023-01-01";
+$conn = null;
 
-// Inserir dados do evento na tabela eventos
-$sql_evento = "INSERT INTO eventos (id_evento, nome_evento, data) VALUES ($id_evento, '$nome_evento', '$data_evento')";
-
-if ($conn->query($sql_evento) === TRUE) {
-    echo "Dados do evento inseridos com sucesso.<br>";
-} else {
-    echo "Erro ao inserir dados do evento: " . $conn->error;
-}
-
-// Dados do participante
-$id_participante = 1;
-$nome_participante = "Participante PHP";
-
-// Inserir dados do participante na tabela participantes
-$sql_participante = "INSERT INTO participantes (id_participante, id_evento, nome_participante) VALUES ($id_participante, $id_evento, '$nome_participante')";
-
-if ($conn->query($sql_participante) === TRUE) {
-    echo "Dados do participante inseridos com sucesso.<br>";
-} else {
-    echo "Erro ao inserir dados do participante: " . $conn->error;
-}
-
-// Fechar conexão
-$conn->close();
 ?>
