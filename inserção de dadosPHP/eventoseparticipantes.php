@@ -1,5 +1,5 @@
 <?php
-
+//nome: maxwell
 $host = 'localhost';
 $dbname = 'meu_banco_de_dados';
 $user = 'meu_usuario';
