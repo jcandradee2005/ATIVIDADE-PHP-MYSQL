@@ -1,4 +1,4 @@
-<?php
+<?php //nome: maxwell
 // Conexão com o banco de dados
 $servername = "localhost";
 $username = "username";
