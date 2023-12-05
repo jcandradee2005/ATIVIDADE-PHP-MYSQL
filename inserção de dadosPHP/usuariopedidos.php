@@ -9,27 +9,27 @@ if (mysqli_connect_errno()) {
 // verificar se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
- // inserir novo aluno na tabela 'alunos'
+ // inserir novo usuário na tabela 'usuarios'
  $nome = $_POST["nome"];
- $turma = $_POST["turma"];
+ $email = $_POST["email"];
 
- $sql = "INSERT INTO alunos (nome, turma) VALUES ('$nome', '$turma')";
+ $sql = "INSERT INTO usuarios (nome, email) VALUES ('$nome', '$email')";
 
  if (mysqli_query($con, $sql)) {
-    $id_aluno = mysqli_insert_id($con);
-    echo "New student registered successfully. Last inserted ID: " . $id_aluno;
+    $id_usuario = mysqli_insert_id($con);
+    echo "New user registered successfully. Last inserted ID: " . $id_usuario;
  } else {
     echo "Error: " . $sql . "<br>" . mysqli_error($con);
  }
 
- // inserir novo curso na tabela 'cursos'
- $nome_curso = $_POST["nome_curso"];
- $instrutor = $_POST["instrutor"];
+ // inserir novo pedido na tabela 'pedidos'
+ $produto = $_POST["produto"];
+ $quantidade = $_POST["quantidade"];
 
- $sql = "INSERT INTO cursos (id_aluno, nome_curso, instrutor) VALUES ('$id_aluno', '$nome_curso', '$instrutor')";
+ $sql = "INSERT INTO pedidos (id_usuario, produto, quantidade) VALUES ('$id_usuario', '$produto', '$quantidade')";
 
  if (mysqli_query($con, $sql)) {
-    echo "New course registered successfully.";
+    echo "New order registered successfully.";
  } else {
     echo "Error: " . $sql . "<br>" . mysqli_error($con);
  }
@@ -43,16 +43,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <body>
 
-<h2>Registre um novo aluno e seu curso</h2>
+<h2>Registre um novo usuário e seu pedido</h2>
 
 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
  Nome: <input type="text" name="nome">
  <br>
- Turma: <input type="text" name="turma">
+ E-mail: <input type="text" name="email">
  <br>
- Nome do Curso: <input type="text" name="nome_curso">
+ Produto: <input type="text" name="produto">
  <br>
- Instrutor: <input type="text" name="instrutor">
+ Quantidade: <input type="text" name="quantidade">
  <br><br>
  <input type="submit" value="Registrar">
 </form>
