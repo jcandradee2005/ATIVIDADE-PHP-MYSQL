@@ -1,76 +1,63 @@
 <?php
-$servername = "seu_servidor";
-$username = "seu_usuario";
-$password = "sua_senha";
-$dbname = "seu_banco_de_dados";
+// conexão com o banco de dados
+$con = mysqli_connect("localhost", "root", "", "gerenciamento_projetos");
 
-// Conexão com o banco de dados
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Verifica a conexão
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
+if (mysqli_connect_errno()) {
+ echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
-// Processar o formulário quando enviado
+// verificar se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome_projeto = $_POST["nome_projeto"];
-    $descricao = $_POST["descricao"];
-    $id_funcionario = $_POST["id_funcionario"];
 
-    // Inserir dados na tabela projetos
-    $sql_projetos = "INSERT INTO projetos (nome_projeto, descricao) VALUES ('$nome_projeto', '$descricao')";
-    
-    if ($conn->query($sql_projetos) === TRUE) {
-        $id_projeto = $conn->insert_id;
+ // inserir novo projeto na tabela 'projetos'
+ $nome_projeto = $_POST["nome_projeto"];
+ $descricao = $_POST["descricao"];
 
-        // Inserir dados na tabela atribuicoes
-        $sql_atribuicoes = "INSERT INTO atribuicoes (id_projeto, id_funcionario) VALUES ('$id_projeto', '$id_funcionario')";
+ $sql = "INSERT INTO projetos (nome_projeto, descricao) VALUES ('$nome_projeto', '$descricao')";
 
-        if ($conn->query($sql_atribuicoes) === TRUE) {
-            echo "Projeto e atribuição inseridos com sucesso.<br>";
-        } else {
-            echo "Erro ao inserir atribuição: " . $conn->error . "<br>";
-        }
-    } else {
-        echo "Erro ao inserir projeto: " . $conn->error . "<br>";
-    }
+ if (mysqli_query($con, $sql)) {
+    $id_projeto = mysqli_insert_id($con);
+    echo "New project registered successfully. Last inserted ID: " . $id_projeto;
+ } else {
+    echo "Error: " . $sql . "<br>" . mysqli_error($con);
+ }
+
+ // associar funcionários ao projeto na tabela 'atribuicoes'
+ $funcionarios = $_POST["funcionarios"];
+
+ foreach ($funcionarios as $id_funcionario) {
+     $sql = "INSERT INTO atribuicoes (id_projeto, id_funcionario) VALUES ('$id_projeto', '$id_funcionario')";
+
+     if (mysqli_query($con, $sql)) {
+        echo "Funcionário " . $id_funcionario . " atribuído ao projeto " . $id_projeto . " com sucesso.";
+     } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($con);
+     }
+ }
+
+ // fechar conexão
+ mysqli_close($con);
 }
-
-// Consultar funcionários para o menu dropdown
-$sql_funcionarios = "SELECT id_funcionario, nome FROM funcionarios";
-$result_funcionarios = $conn->query($sql_funcionarios);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inserir Projeto</title>
-</head>
+<html>
 <body>
 
-<h2>Inserir Projeto</h2>
+<h2>Registre um novo projeto e atribua funcionários</h2>
 
-<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-    Nome do Projeto: <input type="text" name="nome_projeto" required><br>
-    Descrição: <textarea name="descricao"></textarea><br>
-    Funcionário:
-    <select name="id_funcionario">
-        <?php
-        while ($row = $result_funcionarios->fetch_assoc()) {
-            echo "<option value='".$row['id_funcionario']."'>".$row['nome']."</option>";
-        }
-        ?>
-    </select><br>
-    <input type="submit" value="Inserir Projeto">
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+ Nome do Projeto: <input type="text" name="nome_projeto">
+ <br>
+ Descrição: <textarea name="descricao"></textarea>
+ <br>
+ Funcionários: <br>
+ <input type="checkbox" name="funcionarios[]" value="1"> Funcionário 1<br>
+ <input type="checkbox" name="funcionarios[]" value="2"> Funcionário 2<br>
+ <input type="checkbox" name="funcionarios[]" value="3"> Funcionário 3<br>
+ <br><br>
+ <input type="submit" value="Registrar">
 </form>
 
 </body>
 </html>
-
-<?php
-// Fechar a conexão
-$conn->close();
-?>
