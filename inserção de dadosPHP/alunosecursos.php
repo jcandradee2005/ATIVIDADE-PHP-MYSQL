@@ -1,78 +1,61 @@
 <?php
-// nome: Maxwell
-$servername = "seu_servidor";
-$username = "seu_usuario";
-$password = "sua_senha";
-$dbname = "seu_banco_de_dados";
+// conexão com o banco de dados
+$con = mysqli_connect("localhost", "root", "", "cadastro");
 
-// Conexão com o banco de dados
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Verifica a conexão
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
+if (mysqli_connect_errno()) {
+ echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
-// Processar o formulário quando enviado
+// verificar se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome_aluno = $_POST["nome_aluno"];
-    $turma = $_POST["turma"];
-    $nome_curso = $_POST["nome_curso"];
-    $instrutor = $_POST["instrutor"];
 
-    // Inserir dados na tabela alunos
-    $sql_alunos = "INSERT INTO alunos (nome, turma) VALUES ('$nome_aluno', '$turma')";
-    
-    if ($conn->query($sql_alunos) === TRUE) {
-        $id_aluno = $conn->insert_id;
+ // inserir novo usuário na tabela 'usuarios'
+ $nome = $_POST["nome"];
+ $email = $_POST["email"];
 
-        // Inserir dados na tabela cursos
-        $sql_cursos = "INSERT INTO cursos (nome_curso, instrutor) VALUES ('$nome_curso', '$instrutor')";
-        
-        if ($conn->query($sql_cursos) === TRUE) {
-            $id_curso = $conn->insert_id;
+ $sql = "INSERT INTO usuarios (nome, email) VALUES ('$nome', '$email')";
 
-            // Associar aluno ao curso na tabela de relacionamento
-            $sql_relacionamento = "INSERT INTO aluno_curso_relacionamento (id_aluno, id_curso) VALUES ('$id_aluno', '$id_curso')";
-            
-            if ($conn->query($sql_relacionamento) === TRUE) {
-                echo "Aluno registrado e matriculado no curso com sucesso.<br>";
-            } else {
-                echo "Erro ao associar aluno ao curso: " . $conn->error . "<br>";
-            }
-        } else {
-            echo "Erro ao registrar curso: " . $conn->error . "<br>";
-        }
-    } else {
-        echo "Erro ao registrar aluno: " . $conn->error . "<br>";
-    }
+ if (mysqli_query($con, $sql)) {
+    $id_usuario = mysqli_insert_id($con);
+    echo "New user registered successfully. Last inserted ID: " . $id_usuario;
+ } else {
+    echo "Error: " . $sql . "<br>" . mysqli_error($con);
+ }
+
+ // inserir novo pedido na tabela 'pedidos'
+ $produto = $_POST["produto"];
+ $quantidade = $_POST["quantidade"];
+
+ $sql = "INSERT INTO pedidos (id_usuario, produto, quantidade) VALUES ('$id_usuario', '$produto', '$quantidade')";
+
+ if (mysqli_query($con, $sql)) {
+    echo "New order registered successfully.";
+ } else {
+    echo "Error: " . $sql . "<br>" . mysqli_error($con);
+ }
+
+ // fechar conexão
+ mysqli_close($con);
 }
-
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Aluno e Curso</title>
-</head>
+<html>
 <body>
 
-<h2>Registrar Aluno e Curso</h2>
+<h2>Registre um novo usuário e seu pedido</h2>
 
-<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-    Nome do Aluno: <input type="text" name="nome_aluno" required><br>
-    Turma: <input type="text" name="turma" required><br>
-    Nome do Curso: <input type="text" name="nome_curso" required><br>
-    Instrutor do Curso: <input type="text" name="instrutor" required><br>
-    <input type="submit" value="Registrar">
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+ Nome: <input type="text" name="nome">
+ <br>
+ E-mail: <input type="text" name="email">
+ <br>
+ Produto: <input type="text" name="produto">
+ <br>
+ Quantidade: <input type="text" name="quantidade">
+ <br><br>
+ <input type="submit" value="Registrar">
 </form>
 
 </body>
 </html>
-
-<?php
-// Fechar a conexão
-$conn->close();
-?>
