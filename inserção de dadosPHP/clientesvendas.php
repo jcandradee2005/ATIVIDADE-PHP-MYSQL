@@ -1,37 +1,60 @@
 <?php
-// nome: Maxwell
-// Conectar ao banco de dados (substitua pelos seus próprios dados)
-$servername = "seu_servidor";
-$username = "seu_usuario";
-$password = "sua_senha";
-$dbname = "seu_banco_de_dados";
+$servername = "localhost";
+$username = "username";
+$password = "password";
+$dbname = "myDB";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Verificar a conexão
 if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Função para inserir novo cliente e venda
-function inserirClienteVenda($nome, $email, $produtoVendido, $valor) {
-    global $conn;
+$nome = $_POST["nome"];
+$email = $_POST["email"];
+$produto_vendido = $_POST["produto_vendido"];
+$valor = $_POST["valor"];
 
-    // Inserir cliente
-    $sqlCliente = "INSERT INTO clientes (nome, email) VALUES ('$nome', '$email')";
-    $conn->query($sqlCliente);
+$sql = "INSERT INTO clientes (nome, email) VALUES ('$nome', '$email')";
 
-    // Obter o ID do cliente recém-inserido
-    $idCliente = $conn->insert_id;
-
-    // Inserir venda associada ao cliente
-    $sqlVenda = "INSERT INTO vendas (id_cliente, produto_vendido, valor) VALUES ('$idCliente', '$produtoVendido', '$valor')";
-    $conn->query($sqlVenda);
+if ($conn->query($sql) === TRUE) {
+    $id_cliente = $conn->insert_id;
+    echo "Cliente inserido com sucesso. ID: " . $id_cliente;
+} else {
+    echo "Erro: " . $sql . "<br>" . $conn->error;
 }
 
-// Exemplo de uso
-inserirClienteVenda("Maxwell", "maxwell@email.com", "Produto C", 50.0);
+$sql = "INSERT INTO vendas (id_cliente, produto_vendido, valor) VALUES ('$id_cliente', '$produto_vendido', '$valor')";
+
+if ($conn->query($sql) === TRUE) {
+    $id_venda = $conn->insert_id;
+    echo "Venda inserida com sucesso. ID: " . $id_venda;
+} else {
+    echo "Erro: " . $sql . "<br>" . $conn->error;
+}
 
 // Fechar conexão
 $conn->close();
+}
 ?>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Registro de Clientes e Vendas</h2>
+
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+ Nome: <input type="text" name="nome">
+ <br>
+ E-mail: <input type="text" name="email">
+ <br>
+ Produto Vendido: <input type="text" name="produto_vendido">
+ <br>
+ Valor: <input type="text" name="valor">
+ <br><br>
+ <input type="submit" value="Registrar">
+</form>
+
+</body>
+</html>
