@@ -1,37 +1,61 @@
 <?php
-// nome: Maxwell
-// Conectar ao banco de dados (substitua pelos seus próprios dados)
-$servername = "seu_servidor";
-$username = "seu_usuario";
-$password = "sua_senha";
-$dbname = "seu_banco_de_dados";
+// conexão com o banco de dados
+$con = mysqli_connect("localhost", "root", "", "cadastro");
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Verificar a conexão
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
+if (mysqli_connect_errno()) {
+ echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
-// Função para inserir novo usuário e pedido
-function inserirUsuarioPedido($nome, $email, $produto, $quantidade) {
-    global $conn;
+// verificar se o formulário foi enviado
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Inserir usuário
-    $sqlUsuario = "INSERT INTO usuarios (nome, email) VALUES ('$nome', '$email')";
-    $conn->query($sqlUsuario);
+ // inserir novo aluno na tabela 'alunos'
+ $nome = $_POST["nome"];
+ $turma = $_POST["turma"];
 
-    // Obter o ID do usuário recém-inserido
-    $idUsuario = $conn->insert_id;
+ $sql = "INSERT INTO alunos (nome, turma) VALUES ('$nome', '$turma')";
 
-    // Inserir pedido associado ao usuário
-    $sqlPedido = "INSERT INTO pedidos (id_usuario, produto, quantidade) VALUES ('$idUsuario', '$produto', '$quantidade')";
-    $conn->query($sqlPedido);
+ if (mysqli_query($con, $sql)) {
+    $id_aluno = mysqli_insert_id($con);
+    echo "New student registered successfully. Last inserted ID: " . $id_aluno;
+ } else {
+    echo "Error: " . $sql . "<br>" . mysqli_error($con);
+ }
+
+ // inserir novo curso na tabela 'cursos'
+ $nome_curso = $_POST["nome_curso"];
+ $instrutor = $_POST["instrutor"];
+
+ $sql = "INSERT INTO cursos (id_aluno, nome_curso, instrutor) VALUES ('$id_aluno', '$nome_curso', '$instrutor')";
+
+ if (mysqli_query($con, $sql)) {
+    echo "New course registered successfully.";
+ } else {
+    echo "Error: " . $sql . "<br>" . mysqli_error($con);
+ }
+
+ // fechar conexão
+ mysqli_close($con);
 }
-
-// Exemplo de uso
-inserirUsuarioPedido("João Carlos", "jcgalo@email.com", "Produto A", 2);
-
-// Fechar conexão
-$conn->close();
 ?>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Registre um novo aluno e seu curso</h2>
+
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+ Nome: <input type="text" name="nome">
+ <br>
+ Turma: <input type="text" name="turma">
+ <br>
+ Nome do Curso: <input type="text" name="nome_curso">
+ <br>
+ Instrutor: <input type="text" name="instrutor">
+ <br><br>
+ <input type="submit" value="Registrar">
+</form>
+
+</body>
+</html>
